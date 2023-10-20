@@ -4,7 +4,17 @@
     <button @click="animateBlock">Animate</button>
   </div>
   <div class="container">
-    <transition name="para">
+    <transition
+      name="para"
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @after-enter="afterEnter"
+      @before-leave="beforeLeave"
+      @leave="leave"
+      @after-leave="afterLeave"
+      @enter-cancelled="enterCancelled"
+      @leave-cancelled="leaveCancelled"
+    >
       <p v-if="paralsVisible">This is only sometimes visible...</p>
     </transition>
     <button @click="toggleParagraph">Toggle Paragraph</button>
@@ -12,9 +22,10 @@
   <!-- <transition name="modal"> -->
   <!-- <base-modal @close="hideDialog" v-if="dialogIsVisible"> -->
   <div class="container">
-    <transition name="fade-button">
+    <transition name="fade-button" mode="out-in">
       <button @click="showUsers" v-if="!usersAreVisible">Show Users</button>
-      <button @click="hideUsers" v-else-if="usersAreVisible">Hide Users</button>
+      <!-- <button @click="hideUsers" v-else-if="usersAreVisible">Hide Users</button> -->
+      <button @click="hideUsers" v-else>Hide Users</button>
     </transition>
   </div>
   <base-modal @close="hideDialog" :open="dialogIsVisible">
@@ -35,9 +46,67 @@ export default {
       animatedBlock: false,
       paralsVisible: false,
       usersAreVisible: false,
+      enterInterval: null,
+      leaveInterval: null,
     };
   },
   methods: {
+    enterCancelled(el) {
+      console.log(el);
+      clearInterval(this.enterInterval);
+    },
+    leaveCancelled(el) {
+      console.log(el);
+      clearInterval(this.leaveInterval);
+    },
+    beforeEnter(el) {
+      console.log('beforeEnter');
+      console.log(el);
+      el.style.opacity = 0;
+    },
+    enter(el, done) {
+      console.log('enter');
+      console.log(el);
+      let round = 1;
+      // const interval = setInterval(function () {
+      this.enterInterval = setInterval(function () {
+        el.style.opacity = round * 0.01;
+        round++;
+        // console.log('this', this);
+        if (round > 100) {
+          clearInterval(this.enterInterval);
+          done();
+        }
+      }, 20);
+    },
+    afterEnter(el) {
+      console.log('afterEnter');
+      console.log(el);
+    },
+    beforeLeave(el) {
+      console.log('beforeLeave');
+      console.log(el);
+      el.style.opacity = 1;
+    },
+    leave(el, done) {
+      console.log('leave');
+      console.log(el);
+      let round = 1;
+      // const interval = setInterval(function () {
+      this.leaveInterval = setInterval(function () {
+        el.style.opacity = 1 - round * 0.01;
+        round++;
+        // console.log('this', this);
+        if (round > 100) {
+          clearInterval(this.leaveInterval);
+          done();
+        }
+      }, 20);
+    },
+    afterLeave(el) {
+      console.log('afterLeave');
+      console.log(el);
+    },
     showUsers() {
       this.usersAreVisible = true;
     },
@@ -128,7 +197,7 @@ button:active {
 
 .para-enter-active {
   /* transition: all 0.3s ease-out; */
-  animation: slide-scale 0.3s ease-out;
+  /* animation: slide-scale 2s ease-out; */
 }
 
 .para-enter-to {
@@ -143,7 +212,7 @@ button:active {
 
 .para-leave-active {
   /* animation: slide-scale 0.3s ease-out; */
-  animation: slide-scale 0.3s ease-out;
+  /* animation: slide-scale 0.3s ease-out; */
 }
 
 .para-leave-to {
