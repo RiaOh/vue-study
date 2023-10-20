@@ -106,6 +106,7 @@ export default {
     },
     afterLeave(el) {
       console.log('afterLeave');
+      console.log('test');
       console.log(el);
     },
     showUsers() {
