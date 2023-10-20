@@ -46,6 +46,7 @@ export default {
       animatedBlock: false,
       paralsVisible: false,
       usersAreVisible: false,
+      usersAreVisible2: false,
       enterInterval: null,
       leaveInterval: null,
     };
